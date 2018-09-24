@@ -184,6 +184,12 @@ float InficonSpot::convertPressure(uint32_t result)
   return  rawPressure / 2097152.0f * _fullscale;
 }
 
+float InficonSpot::convertPressure(uint32_t result, float fullscale)
+{
+  int32_t rawPressure = *((int32_t *) &result); // convert to signed integer
+  return  rawPressure / 2097152.0f * fullscale;
+}
+
 /*
  * convert the temperature result register to degree Celsius
  */

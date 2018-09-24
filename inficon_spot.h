@@ -55,6 +55,7 @@ class InficonSpot
     void resetSensor();
     uint32_t readRegister(SpotRegister reg);
     float convertPressure(uint32_t reg);
+    float convertPressure(uint32_t result, float fullscale);
     float convertTemperature(uint32_t reg);
 
     String readProductNo();
