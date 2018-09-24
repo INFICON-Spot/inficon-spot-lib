@@ -92,6 +92,82 @@ uint32_t InficonSpot::readRegister(InficonSpot::SpotRegister reg)
   return result;
 }
 
+/*
+ * read a label data string
+ */
+String InficonSpot::readLabel(uint16_t address, byte length)
+{
+  char buf[3]; // buffer for three byte SPI transfer
+  char s[32];
+  bool isZeroTerminated = false;
+
+  if (length > 32) {
+    length = 32;
+  }
+
+  for (byte i = 0; i < length; i++) {
+    buf[0] = 0x10 | (((address + i) >> 8) & 0x0f);
+    buf[1] = (address + i) & 0xff;
+    buf[2] = 0;
+
+    digitalWrite(_ss_pin, LOW);
+    SPI.transfer(buf, 3);
+    digitalWrite(_ss_pin, HIGH);
+
+    // copy data to the character string
+    s[i] = buf[2];
+    if (s[i] == '\0') {
+      isZeroTerminated = true;
+      break;
+    }
+  }
+
+  // if no zero byte was received, the string is not zero-terminated and therefore
+  // invalid. Something went wrong, we make the string empty.
+  if (!isZeroTerminated) {
+    s[0] = '\0';
+  }
+
+  return String(s);
+}
+
+/*
+ * Read label data from sensor. All these commands require a pointer to a character
+ * buffer. The label data will be placed in this buffer as a zero-terminated string.
+ */
+String InficonSpot::readProductNo()
+{
+  return readLabel(ADDR_PRODUCT_NO, 32);
+}
+
+String InficonSpot::readSerialNo()
+{
+  return readLabel(ADDR_SERIAL_NO, 32);
+}
+
+String InficonSpot::readFullscale1()
+{
+  return readLabel(ADDR_FULLSCALE1, 16);
+}
+
+String InficonSpot::readFullscale2()
+{
+  return readLabel(ADDR_FULLSCALE2, 16);
+}
+
+String InficonSpot::readType()
+{
+  return readLabel(ADDR_TYPE, 16);
+}
+
+String InficonSpot::readSpeed()
+{
+  return readLabel(ADDR_SPEED, 16);
+}
+
+/*
+ * Set fullscale value for pressure conversion
+ */
 void InficonSpot::setFullscale(float fullscale)
 {
   _fullscale = fullscale;

@@ -45,6 +45,8 @@ class InficonSpot
       STATUS_TEMPERATURE_ERROR = 1UL << 3,
     };
 
+    typedef String(InficonSpot::*ReadLabelFunction) (void);
+
     InficonSpot();
     InficonSpot(int ss_pin, int rdy_pin, unsigned long freq);
     void begin();
@@ -55,11 +57,28 @@ class InficonSpot
     float convertPressure(uint32_t reg);
     float convertTemperature(uint32_t reg);
 
+    String readProductNo();
+    String readSerialNo();
+    String readFullscale1();
+    String readFullscale2();
+    String readType();
+    String readSpeed();
+
   private:
     int _ss_pin;
     int _rdy_pin;
     unsigned long _spi_freq;
     float _fullscale;
+
+    // label data addresses
+    const uint16_t ADDR_PRODUCT_NO = 0x0ef0;
+    const uint16_t ADDR_SERIAL_NO = 0x0f10;
+    const uint16_t ADDR_FULLSCALE1 = 0x0f30;
+    const uint16_t ADDR_FULLSCALE2 = 0x0f40;
+    const uint16_t ADDR_TYPE = 0x0f50;
+    const uint16_t ADDR_SPEED = 0x0f60;
+
+    String readLabel(uint16_t address, byte length);
 };
 
 #endif
