@@ -105,6 +105,8 @@ String InficonSpot::readLabel(uint16_t address, byte length)
     length = 32;
   }
 
+  SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
+
   for (byte i = 0; i < length; i++) {
     buf[0] = 0x10 | (((address + i) >> 8) & 0x0f);
     buf[1] = (address + i) & 0xff;
@@ -121,6 +123,8 @@ String InficonSpot::readLabel(uint16_t address, byte length)
       break;
     }
   }
+
+  SPI.endTransaction();
 
   // if no zero byte was received, the string is not zero-terminated and therefore
   // invalid. Something went wrong, we make the string empty.
