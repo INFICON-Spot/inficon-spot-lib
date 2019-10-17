@@ -29,7 +29,7 @@ Pins 8, 9 and 10 of the Spot are left unconnected.
 Github
 ------
 The project is available on github at
-<https://github.com/criesch/inficon-spot-lib>
+<https://github.com/INFICON-Spot/inficon-spot-lib>
 
 Bugs
 ----
