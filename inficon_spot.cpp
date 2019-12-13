@@ -52,9 +52,17 @@ void InficonSpot::begin()
  */
 void InficonSpot::resetSensor()
 {
+  sendCommand(0x88);
+}
+
+/*
+ * send a command to the sensor
+ */
+void InficonSpot::sendCommand(uint8_t cmd)
+{
   SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
   digitalWrite(_ss_pin, LOW);
-  SPI.transfer(0x88);
+  SPI.transfer(cmd);
   digitalWrite(_ss_pin, HIGH);
   SPI.endTransaction();
 }
