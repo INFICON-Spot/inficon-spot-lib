@@ -53,8 +53,11 @@ class InficonSpot
     void setFullscale(float fullscale);
     bool isDataAvailable();
     void sendCommand(uint8_t cmd);
+    void readMemory(uint16_t address, uint8_t *data, int len);
+    void writeMemory(uint16_t address, const uint8_t *data, int len);
     void resetSensor();
     uint32_t readRegister(byte reg);
+    void writeRegister(byte reg, uint32_t data);
     float convertPressure(uint32_t reg);
     float convertPressure(uint32_t result, float fullscale);
     float convertTemperature(uint32_t reg);

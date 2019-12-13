@@ -101,21 +101,34 @@ uint32_t InficonSpot::readRegister(byte reg)
 }
 
 /*
- * read a label data string
+ * write a register of sensor
  */
-String InficonSpot::readLabel(uint16_t address, byte length)
+void InficonSpot::writeRegister(byte reg, uint32_t data)
 {
-  char buf[3]; // buffer for three byte SPI transfer
-  char s[32];
-  bool isZeroTerminated = false;
+  byte buf[4]; // buffer for the 4 byte SPI transfer
 
-  if (length > 32) {
-    length = 32;
-  }
+  buf[0] = reg | 0xc0; // copy opcode to the first byte of the buffer
+  buf[1] = (data >> 16) & 0xff;
+  buf[2] = (data >> 8) & 0xff;
+  buf[3] = (data >> 0) & 0xff;
+
+  SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
+  digitalWrite(_ss_pin, LOW);
+  SPI.transfer(buf, 4);
+  digitalWrite(_ss_pin, HIGH);
+  SPI.endTransaction();
+}
+
+/*
+ * read data from the sensor memory
+ */
+void InficonSpot::readMemory(uint16_t address, uint8_t *data, int length)
+{
+  uint8_t buf[3]; // buffer for three byte SPI transfer
 
   SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
 
-  for (byte i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     buf[0] = 0x10 | (((address + i) >> 8) & 0x0f);
     buf[1] = (address + i) & 0xff;
     buf[2] = 0;
@@ -124,18 +137,56 @@ String InficonSpot::readLabel(uint16_t address, byte length)
     SPI.transfer(buf, 3);
     digitalWrite(_ss_pin, HIGH);
 
-    // copy data to the character string
-    s[i] = buf[2];
-    if (s[i] == '\0') {
-      isZeroTerminated = true;
-      break;
-    }
+    data[i] = buf[2];
   }
 
   SPI.endTransaction();
+}
+
+/*
+ * write data to the sensor memory
+ */
+void InficonSpot::writeMemory(uint16_t address, const uint8_t data[], int length)
+{
+  uint8_t buf[3]; // buffer for three byte SPI transfer
+
+  SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
+
+  for (int i = 0; i < length; i++) {
+    buf[0] = 0x90 | (((address + i) >> 8) & 0x0f);
+    buf[1] = (address + i) & 0xff;
+    buf[2] = data[i];
+
+    digitalWrite(_ss_pin, LOW);
+    SPI.transfer(buf, 3);
+    digitalWrite(_ss_pin, HIGH);
+  }
+
+  SPI.endTransaction();
+}
+
+/*
+ * read a label data string
+ */
+String InficonSpot::readLabel(uint16_t address, byte length)
+{
+  char s[32];
+  bool isZeroTerminated = false;
+
+  if (length > 32) {
+    length = 32;
+  }
+
+  readMemory(address, reinterpret_cast<uint8_t*>(s), length);
 
   // if no zero byte was received, the string is not zero-terminated and therefore
   // invalid. Something went wrong, we make the string empty.
+  for (byte i = 0; i < length; i++) {
+    if (s[i] == '\0') {
+      isZeroTerminated = true;
+    }
+  }
+
   if (!isZeroTerminated) {
     s[0] = '\0';
   }
