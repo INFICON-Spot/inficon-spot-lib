@@ -28,11 +28,11 @@ class InficonSpot
 {
   public:
     enum SpotRegister {
-      REG_PRESSURE = 0x41,
-      REG_PRESSURE1 = 0x46,
-      REG_PRESSURE2 = 0x47,
-      REG_TEMPERATURE = 0x4D,
-      REG_STATUS = 0x48,
+      REG_PRESSURE = 0x01,
+      REG_PRESSURE1 = 0x06,
+      REG_PRESSURE2 = 0x07,
+      REG_TEMPERATURE = 0x0D,
+      REG_STATUS = 0x08,
     };
 
     enum SpotStatus {
@@ -54,7 +54,7 @@ class InficonSpot
     bool isDataAvailable();
     void sendCommand(uint8_t cmd);
     void resetSensor();
-    uint32_t readRegister(SpotRegister reg);
+    uint32_t readRegister(byte reg);
     float convertPressure(uint32_t reg);
     float convertPressure(uint32_t result, float fullscale);
     float convertTemperature(uint32_t reg);

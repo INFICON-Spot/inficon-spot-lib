@@ -79,12 +79,12 @@ bool InficonSpot::isDataAvailable()
  * shall be read. The return value is the content
  * of the 24 bit result register.
  */
-uint32_t InficonSpot::readRegister(InficonSpot::SpotRegister reg)
+uint32_t InficonSpot::readRegister(byte reg)
 {
   uint32_t result;
   byte buf[4] = {0, 0, 0, 0}; // buffer for the 4 byte SPI transfer
 
-  buf[0] = reg; // copy opcode to the first byte of the buffer
+  buf[0] = reg | 0x40; // copy opcode to the first byte of the buffer
 
   SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
   // take the chip select low to select the device:
