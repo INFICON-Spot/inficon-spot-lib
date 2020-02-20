@@ -69,7 +69,7 @@ class InficonSpot
     String readType();
     String readSpeed();
 
-  private:
+  protected:
     int _ss_pin;
     int _rdy_pin;
     unsigned long _spi_freq;
