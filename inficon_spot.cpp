@@ -3,7 +3,7 @@
  *
  * Arduino library for INFICON Spot sensors
  *
- * Copyright (c) 2018-2020 INFICON Ltd.
+ * Copyright (c) 2018-2021 INFICON Ltd.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -120,6 +120,30 @@ void InficonSpot::writeRegister(byte reg, uint32_t data)
 }
 
 /*
+ * read data from the sensor OTP memory
+ */
+void InficonSpot::readOTP(uint16_t address, uint8_t *data, int length)
+{
+  uint8_t buf[3]; // buffer for three byte SPI transfer
+
+  SPI.beginTransaction(SPISettings(_spi_freq, MSBFIRST, SPI_MODE1));
+
+  for (int i = 0; i < length; i++) {
+    buf[0] = 0x20 | (((address + i) >> 8) & 0x1f);
+    buf[1] = (address + i) & 0xff;
+    buf[2] = 0;
+
+    digitalWrite(_ss_pin, LOW);
+    SPI.transfer(buf, 3);
+    digitalWrite(_ss_pin, HIGH);
+
+    data[i] = buf[2];
+  }
+
+  SPI.endTransaction();
+}
+
+/*
  * read data from the sensor memory
  */
 void InficonSpot::readMemory(uint16_t address, uint8_t *data, int length)
@@ -226,6 +250,31 @@ String InficonSpot::readType()
 String InficonSpot::readSpeed()
 {
   return readLabel(ADDR_SPEED, 16);
+}
+
+/*
+ * Read the CRCs from the Spot sensor memory
+ */
+uint32_t InficonSpot::readSramCrc()
+{
+  uint8_t crcbuf[4];
+  readMemory(ADDR_SRAMCRC, crcbuf, 4);
+  return
+    ((uint32_t) crcbuf[3]) << 24 |
+    ((uint32_t) crcbuf[2]) << 16 |
+    ((uint32_t) crcbuf[1]) << 8 |
+    (uint32_t) crcbuf[0];
+}
+
+uint32_t InficonSpot::readOtpCrc()
+{
+  uint8_t crcbuf[4];
+  readOTP(ADDR_OTPCRC, crcbuf, 4);
+  return
+    ((uint32_t) crcbuf[3]) << 24 |
+    ((uint32_t) crcbuf[2]) << 16 |
+    ((uint32_t) crcbuf[1]) << 8 |
+    (uint32_t) crcbuf[0];
 }
 
 /*

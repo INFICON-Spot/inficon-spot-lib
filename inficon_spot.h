@@ -3,7 +3,7 @@
  *
  * Arduino library for INFICON Spot sensors
  *
- * Copyright (c) 2018-2020 INFICON Ltd.
+ * Copyright (c) 2018-2021 INFICON Ltd.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -53,6 +53,7 @@ class InficonSpot
     void setFullscale(float fullscale);
     bool isDataAvailable();
     void sendCommand(uint8_t cmd);
+    void readOTP(uint16_t address, uint8_t *data, int length);
     void readMemory(uint16_t address, uint8_t *data, int len);
     void writeMemory(uint16_t address, const uint8_t *data, int len);
     void resetSensor();
@@ -69,6 +70,9 @@ class InficonSpot
     String readType();
     String readSpeed();
 
+    uint32_t readSramCrc();
+    uint32_t readOtpCrc();
+
   protected:
     int _ss_pin;
     int _rdy_pin;
@@ -82,6 +86,8 @@ class InficonSpot
     const uint16_t ADDR_FULLSCALE2 = 0x0f40;
     const uint16_t ADDR_TYPE = 0x0f50;
     const uint16_t ADDR_SPEED = 0x0f60;
+    const uint16_t ADDR_SRAMCRC = 0x0ee8;
+    const uint16_t ADDR_OTPCRC = 0x0eec;
 
     String readLabel(uint16_t address, byte length);
 };
