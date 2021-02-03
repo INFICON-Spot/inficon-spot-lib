@@ -54,8 +54,8 @@ class InficonSpot
     bool isDataAvailable();
     void sendCommand(uint8_t cmd);
     void readOTP(uint16_t address, uint8_t *data, int length);
-    void readMemory(uint16_t address, uint8_t *data, int len);
-    void writeMemory(uint16_t address, const uint8_t *data, int len);
+    void readMemory(uint16_t address, uint8_t *data, int length);
+    void writeMemory(uint16_t address, const uint8_t *data, int length);
     void resetSensor();
     uint32_t readRegister(byte reg);
     void writeRegister(byte reg, uint32_t data);
